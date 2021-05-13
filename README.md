@@ -8,7 +8,7 @@
 #### 软件架构
 前端：
 1. Vue
-2. Element
+2. Element-ui
 3. Node.js
 4. axios
 
