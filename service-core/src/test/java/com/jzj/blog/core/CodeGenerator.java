@@ -19,11 +19,6 @@ public class CodeGenerator {
 
 
     @Test
-    public void test(){
-        int pageCount = 105% 10==0?1:2;
-        System.out.println(pageCount);
-    }
-    @Test
     public void genCode() {
 
         // 1、创建代码生成器

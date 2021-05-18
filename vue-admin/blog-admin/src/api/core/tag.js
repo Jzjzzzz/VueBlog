@@ -1,9 +1,10 @@
 import request from '@/utils/request'
 export default {
-  list(page, limit) {
+  list(page, limit, searchObj) {
     return request({
       url: `/admin/core/tag/list/${page}/${limit}`,
-      method: 'get'
+      method: 'get',
+      params: searchObj
     })
   },
   removeById(id) {
@@ -12,7 +13,7 @@ export default {
       method: 'delete'
     })
   },
-  save(tag) {
+  approval(tag) {
     return request({
       url: '/admin/core/tag/save',
       method: 'post',
@@ -31,6 +32,19 @@ export default {
       url: '/admin/core/tag/update',
       method: 'put',
       data: tag
+    })
+  },
+  stickyBlogById(id) {
+    return request({
+      url: `/admin/core/tag/stickyBlogById/${id}`,
+      method: 'get'
+    })
+  },
+  deleteBatchTag(params) {
+    return request({
+      url: '/admin/core/tag/deleteBatch',
+      method: 'post',
+      data: params
     })
   }
 }

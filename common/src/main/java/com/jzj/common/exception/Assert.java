@@ -39,7 +39,7 @@ public class Assert {
      *
      * @param expression 是否成功
      */
-    public static void isTrue(boolean expression, ResponseEnum responseEnum) {
+    public static void  isTrue(boolean expression, ResponseEnum responseEnum) {
         if (!expression) {
             log.info("fail...............");
             throw new BusinessException(responseEnum);

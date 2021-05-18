@@ -70,19 +70,6 @@ export const constantRoutes = [
         name: 'coreGenreList',
         component: () => import('@/views/core/genre/list'),
         meta: { title: '博客分类列表' }
-      },
-      {
-        path: 'create',
-        name: 'coreGenreCreate',
-        component: () => import('@/views/core/genre/form'),
-        meta: { title: '新增博客分类' }
-      },
-      {
-        path: 'edit/:id',
-        name: 'coreGenreEdit',
-        component: () => import('@/views/core/genre/form'),
-        meta: { title: '编辑博客分类' },
-        hidden: true
       }
     ]
   },
@@ -99,19 +86,6 @@ export const constantRoutes = [
         name: 'coreTagList',
         component: () => import('@/views/core/tag/list'),
         meta: { title: '博客标签列表' }
-      },
-      {
-        path: 'create',
-        name: 'coreTagCreate',
-        component: () => import('@/views/core/tag/form'),
-        meta: { title: '新增博客标签' }
-      },
-      {
-        path: 'edit/:id',
-        name: 'coreTagEdit',
-        component: () => import('@/views/core/tag/form'),
-        meta: { title: '编辑博客标签' },
-        hidden: true
       }
     ]
   },

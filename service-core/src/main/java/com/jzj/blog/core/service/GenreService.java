@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jzj.blog.core.pojo.entity.Genre;
+import com.jzj.blog.core.pojo.query.GenreQuery;
+
+import java.util.List;
 
 /**
  * <p>
@@ -11,10 +14,14 @@ import com.jzj.blog.core.pojo.entity.Genre;
  * </p>
  *
  * @author Jzj
- * @since 2021-04-27
+ * @since 2021-05-18
  */
 public interface GenreService extends IService<Genre> {
 
+    IPage<Genre> listPage(Page<Genre> pageParam, GenreQuery genreQuery);
 
-    IPage<Genre> listPage(Page<Genre> pageParam);
+    boolean topBlogById(Long id);
+
+    boolean deleteBatchTag(List<Genre> genreList);
+
 }

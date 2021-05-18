@@ -45,6 +45,8 @@
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity-engine-core</artifactId>
         </dependency>
+
+
     </dependencies>
     <build>
         <!-- 项目打包时会将java目录中的*.xml文件也进行打包 -->

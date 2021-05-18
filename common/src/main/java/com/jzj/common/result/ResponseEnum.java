@@ -19,7 +19,6 @@ public enum ResponseEnum {
 
 
     //-2xx 参数校验
-    TYPE_NAME_NULL_ERROR(-201, "博客分类名称不能为空"),
     MOBILE_NULL_ERROR(-202, "手机号码不能为空"),
     MOBILE_ERROR(-203, "手机号码不正确"),
     PASSWORD_NULL_ERROR(204, "密码不能为空"),
@@ -30,8 +29,15 @@ public enum ResponseEnum {
     LOGIN_PASSWORD_ERROR(209, "密码错误"),
     LOGIN_LOKED_ERROR(210, "用户被锁定"),
     LOGIN_AUTH_ERROR(-211, "未登录"),
+
     Tag_NAME_NULL_ERROR(-212, "博客标签名称不能为空"),
-    TYPE_NAME__ERROR(-213, "博客分类已存在"),
+    Tag_MaxSort__ERROR(-213, "当前博客标签排序已是最大"),
+    Tag_SumTag__ERROR(-214, "选中标签数量异常"),
+
+
+    TYPE_NAME_NULL_ERROR(-221, "博客分类名称不能为空"),
+    TYPE_NAME__ERROR(-222, "博客分类已存在"),
+    TYPE_SumTag__ERROR(-214, "选中标签数量异常"),
 
 
     USER_BIND_IDCARD_EXIST_ERROR(-301, "身份证号码已绑定"),

@@ -1,9 +1,10 @@
 import request from '@/utils/request'
 export default {
-  list(page, limit) {
+  list(page, limit, searchObj) {
     return request({
       url: `/admin/core/genre/list/${page}/${limit}`,
-      method: 'get'
+      method: 'get',
+      params: searchObj
     })
   },
   removeById(id) {
@@ -12,11 +13,11 @@ export default {
       method: 'delete'
     })
   },
-  save(genre) {
+  approval(tag) {
     return request({
       url: '/admin/core/genre/save',
       method: 'post',
-      data: genre
+      data: tag
     })
   },
 
@@ -26,11 +27,24 @@ export default {
       method: 'get'
     })
   },
-  updateById(genre) {
+  updateById(tag) {
     return request({
       url: '/admin/core/genre/update',
       method: 'put',
-      data: genre
+      data: tag
+    })
+  },
+  stickyBlogById(id) {
+    return request({
+      url: `/admin/core/genre/stickyBlogById/${id}`,
+      method: 'get'
+    })
+  },
+  deleteBatchTag(params) {
+    return request({
+      url: '/admin/core/genre/deleteBatch',
+      method: 'post',
+      data: params
     })
   }
 }
