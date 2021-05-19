@@ -36,6 +36,9 @@
 3.  启动微服务网关：service-gateway
 4.  启动核心业务微服务: service-core
 
+#### 项目预览图
+![标签页](https://images.gitee.com/uploads/images/2021/0518/210324_905f69d0_4874620.png "X8`$(PP3}QLVO~%@S53D26N.png")
+
 #### 参与贡献
 
 1.  Jzjzzzz
