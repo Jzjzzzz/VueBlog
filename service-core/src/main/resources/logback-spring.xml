@@ -2,7 +2,7 @@
 <configuration>
     <contextName>JzjBlog</contextName>
     <!-- 日志的输出目录 -->
-    <property name="log.path" value="E:/vue+springboot的blog/blog/blog_log" />
+    <property name="log.path" value="E:/vue+springboot的blog/blog/blog_log/blog_core" />
     <!--控制台日志格式：彩色日志-->
     <!-- magenta:洋红 -->
     <!-- boldMagenta:粗红-->

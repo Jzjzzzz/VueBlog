@@ -58,49 +58,46 @@ export const constantRoutes = [
   },
 
   {
-    path: '/core/genre',
+    path: '/core/blog',
     component: Layout,
-    redirect: '/core/genre/list',
+    redirect: '/core/blog/blogTag',
     name: 'coreGenre',
-    meta: { title: '博客分类管理', icon: 'el-icon-postcard' },
+    meta: { title: '博客管理', icon: 'el-icon-postcard' },
     alwaysShow: true,
     children: [
       {
-        path: 'list',
+        path: 'blogGenre',
         name: 'coreGenreList',
-        component: () => import('@/views/core/genre/list'),
-        meta: { title: '博客分类列表' }
-      }
-    ]
-  },
-  {
-    path: '/core/tag',
-    component: Layout,
-    redirect: '/core/tag/list',
-    name: 'coreTag',
-    meta: { title: '博客标签管理', icon: 'el-icon-postcard' },
-    alwaysShow: true,
-    children: [
+        component: () => import('@/views/core/blog/blogGenre'),
+        meta: { title: '博客分类管理' }
+      },
       {
-        path: 'list',
+        path: 'blogTag',
         name: 'coreTagList',
-        component: () => import('@/views/core/tag/list'),
-        meta: { title: '博客标签列表' }
+        component: () => import('@/views/core/blog/blogTag'),
+        meta: { title: '博客标签管理' }
       }
     ]
   },
+
   {
     path: '/core',
     component: Layout,
-    redirect: '/core/dict/list',
-    name: 'coreDict',
+    redirect: '/core/system/webConfig',
+    name: 'coreSystem',
     meta: { title: '系统设置', icon: 'el-icon-setting' },
     alwaysShow: true,
     children: [
       {
-        path: 'dict/list',
+        path: 'system/webConfig',
+        name: '站点配置',
+        component: () => import('@/views/core/system/webConfig'),
+        meta: { title: '站点配置' }
+      },
+      {
+        path: 'system/dict',
         name: '数据字典',
-        component: () => import('@/views/core/dict/list'),
+        component: () => import('@/views/core/system/dict'),
         meta: { title: '数据字典' }
       }
     ]

@@ -19,6 +19,7 @@ public enum ResponseEnum {
 
 
     //-2xx 参数校验
+    Model_NULL_ERROR(-201, "数据不存在"),
     MOBILE_NULL_ERROR(-202, "手机号码不能为空"),
     MOBILE_ERROR(-203, "手机号码不正确"),
     PASSWORD_NULL_ERROR(204, "密码不能为空"),
