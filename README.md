@@ -31,10 +31,12 @@
 4.  nacos1.4
 #### 使用说明
 
-1.  启动前端：文件夹blog-vue，执行npm run dev
-2.  启动nacos和redis
-3.  启动微服务网关：service-gateway
-4.  启动核心业务微服务: service-core
+1.  运行doc sql文件夹里面的sql文件
+1.  启动前端：文件夹blog-vue，执行npm install拉取,然后执行npm run dev启动项目
+2.  启动nacos ,nacos要使用单机环境启动 startup.cmd -m standalone
+3.  启动redis
+4.  启动微服务网关：service-gateway
+5.  启动核心业务微服务: service-core
 
 #### 项目预览图
 ![标签页](https://images.gitee.com/uploads/images/2021/0518/210324_905f69d0_4874620.png "X8`$(PP3}QLVO~%@S53D26N.png")
