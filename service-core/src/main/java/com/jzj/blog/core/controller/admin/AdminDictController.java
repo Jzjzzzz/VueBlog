@@ -2,8 +2,11 @@ package com.jzj.blog.core.controller.admin;
 
 
 import com.alibaba.excel.EasyExcel;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jzj.blog.core.pojo.dto.ExcelDictDTO;
 import com.jzj.blog.core.pojo.entity.Dict;
+import com.jzj.blog.core.pojo.query.DictQuery;
 import com.jzj.blog.core.service.DictService;
 import com.jzj.common.exception.BusinessException;
 import com.jzj.common.result.R;
@@ -38,6 +41,7 @@ public class AdminDictController {
     @Resource
     private DictService dictService;
 
+
     @ApiOperation("Excel数据的批量导入")
     @PostMapping("/import")
     public R batchImport(@RequestParam("file") MultipartFile file){
@@ -60,6 +64,14 @@ public class AdminDictController {
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
         EasyExcel.write(response.getOutputStream(), ExcelDictDTO.class).sheet("数据字典").doWrite(dictService.listDictData());
     }
+    @ApiOperation("查询所有上级节点数据列表")
+    @GetMapping("/list/{page}/{limit}")
+    public R listByTop(@PathVariable Long page, @PathVariable Long limit, DictQuery dictQuery){
+        Page<Dict> pageParam = new Page<>(page,limit);
+        IPage<Dict> listPage = dictService.listPage(pageParam,dictQuery);
+        return R.ok().data("listPage",listPage);
+    }
+
     @ApiOperation("根据上级id获取子节点数据列表")
     @GetMapping("/listByParentId/{parentId}")
     public R listByParentId(@PathVariable Long parentId){
@@ -67,10 +79,10 @@ public class AdminDictController {
         return R.ok().data("list",dictList);
     }
 
-    @ApiOperation("新增数据字典")
-    @PostMapping("/save")
-    public R save(@RequestBody Dict dict){
-        boolean result = dictService.save(dict);
+    @ApiOperation("新增顶级节点")
+    @PostMapping("/saveTop")
+    public R saveTop(@RequestBody Dict dict){
+        boolean result = dictService.saveTop(dict);
         if(result){
             return R.ok().message("新增成功");
         }
@@ -86,6 +98,7 @@ public class AdminDictController {
         return R.error().message("该条数据不存在");
     }
 
+
     @ApiOperation("修改数据字典")
     @PutMapping("/update")
     public R update(@RequestBody Dict dict){
@@ -96,10 +109,10 @@ public class AdminDictController {
         return R.error().message("修改失败");
     }
 
-    @ApiOperation("根据ID删除数据字典")
-    @DeleteMapping("/removeById/{id}")
-    public R removeById(@PathVariable Long id){
-        boolean result = dictService.removeById(id);
+    @ApiOperation("根据ID删除数据字典上级节点")
+    @DeleteMapping("/removeByIdTop/{id}")
+    public R removeByIdTop(@PathVariable Long id){
+        boolean result = dictService.removeByIdTop(id);
         if(result){
             return R.ok().message("删除成功");
         }

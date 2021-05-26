@@ -31,14 +31,13 @@ public class GenreServiceImpl extends ServiceImpl<GenreMapper, Genre> implements
 
     @Override
     public IPage<Genre> listPage(Page<Genre> pageParam, GenreQuery genreQuery) {
+        if(genreQuery==null){
+            return baseMapper.selectPage(pageParam, null);
+        }
+        QueryWrapper<Genre> genreQueryWrapper = new QueryWrapper<>();
+
         String content = genreQuery.getContent();
         Integer status = genreQuery.getStatus();
-
-            QueryWrapper<Genre> genreQueryWrapper = new QueryWrapper<>();
-        genreQueryWrapper.eq(SQLConf.IS_DELETED,0);
-        if(genreQuery==null){
-            return baseMapper.selectPage(pageParam, genreQueryWrapper);
-        }
         genreQueryWrapper
                 .like(StringUtils.isNotBlank(content),"content",content)
                 .eq(status!=null,SQLConf.STATUS,status);
@@ -47,9 +46,7 @@ public class GenreServiceImpl extends ServiceImpl<GenreMapper, Genre> implements
 
     @Override
     public boolean topBlogById(Long id) {
-        QueryWrapper<Genre> genreQueryWrapper = new QueryWrapper<>();
-        genreQueryWrapper.eq(SQLConf.IS_DELETED,0);
-        List<Genre> genres = baseMapper.selectList(genreQueryWrapper);
+        List<Genre> genres = baseMapper.selectList(null);
         //获取需要置顶的标签
         Genre genre = genres.stream().filter(s -> s.getId().equals(id)).findFirst().get();
         //查询当前标签集合中的最大值

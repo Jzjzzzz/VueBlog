@@ -26,7 +26,7 @@ public class Dict implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id")
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id")
     private Long id;
 
     @ApiModelProperty(value = "上级id")
@@ -51,9 +51,14 @@ public class Dict implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
 
+    @ApiModelProperty(value = "状态")
+    private Integer status;
+
+    @ApiModelProperty(value = "备注")
+    private String remark;
+
     @ApiModelProperty(value = "删除标记（0:不可用 1:可用）")
     @TableField("is_deleted")
-    @TableLogic
     private Boolean deleted;
 
     @TableField(exist = false) //表达逻辑概念的属性，和物理表没有关系，当前字段不存在于物理表中

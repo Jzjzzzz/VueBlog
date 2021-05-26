@@ -60,11 +60,17 @@ export const constantRoutes = [
   {
     path: '/core/blog',
     component: Layout,
-    redirect: '/core/blog/blogTag',
+    redirect: '/core/blog/blog',
     name: 'coreGenre',
     meta: { title: '博客管理', icon: 'el-icon-postcard' },
     alwaysShow: true,
     children: [
+      {
+        path: 'blog',
+        name: 'coreblogList',
+        component: () => import('@/views/core/blog/blog'),
+        meta: { title: '博客管理' }
+      },
       {
         path: 'blogGenre',
         name: 'coreGenreList',

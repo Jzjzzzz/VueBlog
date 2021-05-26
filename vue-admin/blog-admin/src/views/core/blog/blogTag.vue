@@ -117,7 +117,12 @@
       @current-change="changeCurrentPage"
     />
     <!-- 添加或修改对话框 -->
-    <el-dialog title="新增博客标签" :visible.sync="dialogVisible" width="30%">
+    <el-dialog
+      title="新增博客标签"
+      :visible.sync="dialogVisible"
+      width="30%"
+      @close="closeDialog"
+    >
       <el-form :model="form" :rules="rules" ref="form">
         <el-form-item
           label="标签名"
@@ -180,12 +185,7 @@ export default {
       ], //标签状态字典
       formLabelWidth: '120px',
       dialogVisible: false,
-      form: {
-        content: '',
-        sort: 0, //排序
-        status: 1, //状态
-        clickcount: 0 //点击数
-      } //新增
+      form: {} //新增
     }
   },
   // 页面渲染成功后获取数据
@@ -194,6 +194,10 @@ export default {
   },
   // 定义方法
   methods: {
+    //关闭dialog时清空数据
+    closeDialog() {
+      this.form = {}
+    },
     approvalShow(row) {
       this.dialogVisible = true
       tagApi.getById(row).then(response => {

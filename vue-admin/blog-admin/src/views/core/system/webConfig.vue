@@ -6,7 +6,24 @@
           <i class="el-icon-date"></i>
           网站信息
         </span>
+
         <el-form ref="form" :model="form" label-width="80px">
+          <el-form-item label="LOGO">
+            <el-upload
+              action="http://localhost:/api/oss/file/upload"
+              :on-success="onUploadSuccessLOGO"
+              :on-remove="onUploadRemove"
+              :multiple="false"
+              :on-change="handleEditChange"
+              :class="{ hide: hideUpload }"
+              :data="{ module: 'LOGO' }"
+              :limit="1"
+              :file-list="fileList"
+              list-type="picture-card"
+            >
+              <i class="el-icon-plus"></i>
+            </el-upload>
+          </el-form-item>
           <el-row :gutter="24">
             <el-col :span="10">
               <el-form-item label="网站名称" prop="oldPwd">
@@ -68,12 +85,19 @@
         </span>
         暂未开发
       </el-tab-pane>
-      <el-tab-pane label="关注我">
+      <el-tab-pane v-permission="'/webConfig/getWebConfig'">
         <span slot="label">
           <i class="el-icon-date"></i>
-          关注我
+          关注我们
         </span>
-        <el-form ref="form" :model="form" label-width="80px">
+        <el-form
+          style="margin-left: 20px;"
+          label-position="left"
+          :model="form"
+          label-width="80px"
+          :rules="rules"
+          ref="form"
+        >
           <el-checkbox-group v-model="form.showList">
             <el-form-item label="邮箱" prop="email">
               <el-input v-model="form.email" style="width: 400px"></el-input>
@@ -118,7 +142,11 @@
             </el-form-item>
           </el-checkbox-group>
           <el-form-item>
-            <el-button type="primary" @click="submitForm()">
+            <el-button
+              type="primary"
+              @click="submitForm()"
+              v-permission="'/webConfig/editWebConfig'"
+            >
               保 存
             </el-button>
           </el-form-item>
@@ -127,6 +155,11 @@
     </el-tabs>
   </div>
 </template>
+<style>
+.hide .el-upload--picture-card {
+  display: none;
+}
+</style>
 <script>
 import webConfigApi from '@/api/core/webConfig'
 export default {
@@ -148,25 +181,67 @@ export default {
         weixinPayPhoto: '',
         showList: [],
         loginTypeList: []
-      }
+      },
+      hideUpload: false,
+      limitCount: 1,
+      uploadUrl: '/api/oss/file/upload', //图片上传地址
+      fileList: []
     }
   },
   // 页面渲染成功后获取数据
   created() {
     this.fetchData()
   },
+
   // 定义方法
   methods: {
+    handleEditChange(file, fileList) {
+      console.log(file)
+      this.hideUpload = fileList.length >= this.limitCount
+    },
+    handleChange(file, fileList) {
+      webConfigApi.uploadImage(file).then(response => {
+        this.$message.success(response.message)
+      })
+    },
+    onUploadSuccessLOGO(response, file) {
+      this.onUploadSuccess(response, file, 'LOGO')
+    },
+    onUploadSuccess(response, file, type) {
+      // debugger
+      if (response.code !== 0) {
+        this.$message.error(response.message)
+        return
+      }
+      // 填充上传文件
+      this.form.logo = response.data.url
+    },
+
+    onUploadRemove(file, fileList) {
+      //删除oss服务器上的内容
+      this.url = file.response.data.url
+      webConfigApi.delete(this.url).then(response => {
+        this.$message.success(response.message)
+        this.hideUpload = fileList.length >= this.limitCount
+      })
+    },
+
     fetchData() {
       // 调用api
       webConfigApi.getWebConfig().then(response => {
         this.form = response.data.webConfig
+        this.fileList.push({
+          name: 'logo',
+          url: this.form.logo
+        })
       })
     },
+
     submitForm() {
       let form = this.form
       webConfigApi.editWebConfig(form).then(response => {
         this.$message.success('保存成功')
+        this.fileList.splice(0)
         this.fetchData()
       })
     }

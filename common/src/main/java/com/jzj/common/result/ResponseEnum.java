@@ -40,6 +40,8 @@ public enum ResponseEnum {
     TYPE_NAME__ERROR(-222, "博客分类已存在"),
     TYPE_SumTag__ERROR(-214, "选中标签数量异常"),
 
+    Dic_Top_NotNull(-230,"该顶级节点下还有子节点，无法删除"),
+
 
     USER_BIND_IDCARD_EXIST_ERROR(-301, "身份证号码已绑定"),
     USER_NO_BIND_ERROR(302, "用户未绑定"),

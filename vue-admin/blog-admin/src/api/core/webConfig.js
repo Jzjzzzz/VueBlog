@@ -13,5 +13,18 @@ export default {
       method: 'put',
       data: params
     })
+  },
+  uploadImage(data) {
+    return request({
+      url: '/api/oss/file/upload',
+      method: 'post',
+      data: data
+    })
+  },
+  delete(url) {
+    return request({
+      url: '/api/oss/file/remove?url=' + url,
+      method: 'delete'
+    })
   }
 }

@@ -32,14 +32,14 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 
     @Override
     public IPage<Tag> listPage(Page<Tag> pageParam, TagQuery tagQuery) {
+
+        if(tagQuery==null){
+            return baseMapper.selectPage(pageParam, null);
+        }
         String content = tagQuery.getContent();
         Integer status = tagQuery.getStatus();
 
         QueryWrapper<Tag> tagQueryWrapper = new QueryWrapper<>();
-        tagQueryWrapper.eq(SQLConf.IS_DELETED,0);
-        if(tagQuery==null){
-            return baseMapper.selectPage(pageParam, tagQueryWrapper);
-        }
         tagQueryWrapper
                 .like(StringUtils.isNotBlank(content),"content",content)
                 .eq(status!=null,SQLConf.STATUS,status);
@@ -48,9 +48,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 
     @Override
     public boolean topBlogById(Long id) {
-        QueryWrapper<Tag> tagQueryWrapper = new QueryWrapper<>();
-        tagQueryWrapper.eq(SQLConf.IS_DELETED,0);
-        List<Tag> tags = baseMapper.selectList(tagQueryWrapper);
+        List<Tag> tags = baseMapper.selectList(null);
         //获取需要置顶的标签
         Tag tag = tags.stream().filter(s -> s.getId().equals(id)).findFirst().get();
         //查询当前标签集合中的最大值
