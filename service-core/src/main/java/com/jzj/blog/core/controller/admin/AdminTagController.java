@@ -3,9 +3,11 @@ package com.jzj.blog.core.controller.admin;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.jzj.blog.core.pojo.entity.Dict;
 import com.jzj.blog.core.pojo.entity.Tag;
 import com.jzj.blog.core.pojo.query.TagQuery;
 import com.jzj.blog.core.service.TagService;
+import com.jzj.blog.core.util.SystemDictUtil;
 import com.jzj.common.result.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,6 +33,16 @@ public class AdminTagController {
     @Resource
     private TagService tagService;
 
+    @Resource
+    private SystemDictUtil systemDictUtil;
+
+
+    @ApiOperation("/字典数据")
+    @GetMapping("/dictList")
+    public R dict(){
+        List<Dict> dictListByParentId = systemDictUtil.getDictListByParentId();
+        return R.ok().data("dict",dictListByParentId);
+    }
 
     @ApiOperation("博客标签列表")
     @GetMapping("/list/{page}/{limit}")
@@ -44,6 +56,8 @@ public class AdminTagController {
     @ApiOperation("新增博客标签")
     @PostMapping("/save")
     public R save(@RequestBody Tag tag){
+        //设置初始值
+        tag.setClickcount(0);
         boolean result = tagService.save(tag);
         if(result){
             return R.ok().message("新增成功");

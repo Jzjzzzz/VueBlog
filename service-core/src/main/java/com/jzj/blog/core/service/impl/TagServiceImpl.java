@@ -10,10 +10,12 @@ import com.jzj.blog.core.mapper.TagMapper;
 import com.jzj.blog.core.pojo.entity.Tag;
 import com.jzj.blog.core.pojo.query.TagQuery;
 import com.jzj.blog.core.service.TagService;
+import com.jzj.blog.core.util.SystemDictUtil;
 import com.jzj.common.exception.Assert;
 import com.jzj.common.result.ResponseEnum;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -29,6 +31,8 @@ import java.util.List;
 @Service
 public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagService {
 
+    @Resource
+    private SystemDictUtil systemDictUtil;
 
     @Override
     public IPage<Tag> listPage(Page<Tag> pageParam, TagQuery tagQuery) {

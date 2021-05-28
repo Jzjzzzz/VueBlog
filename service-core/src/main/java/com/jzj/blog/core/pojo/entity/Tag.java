@@ -51,7 +51,7 @@ public class Tag implements Serializable {
 
     @ApiModelProperty(value = "点击数")
     @TableField("clickCount")
-    private String clickcount;
+    private Integer clickcount;
 
     @ApiModelProperty(value = "排序字段，越大越靠前")
     private Integer sort;

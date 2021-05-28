@@ -30,7 +30,16 @@
       >
         导入Excel
       </el-button>
+      <el-button
+        @click="exportData"
+        type="primary"
+        size="medium"
+        icon="el-icon-upload2"
+      >
+        导出Excel
+      </el-button>
       <el-button type="default" @click="resetData()">清空</el-button>
+      <el-button type="warning" @click="deleteCache()">清空缓存</el-button>
     </el-form>
 
     <!-- 表格 -->
@@ -62,7 +71,7 @@
             type="warning"
             size="mini"
             icon="el-icon-edit"
-            @click="stickyBlogById(scope.row.id)"
+            @click="handleList(scope.row.id)"
           >
             列表
           </el-button>
@@ -151,15 +160,15 @@
             auto-complete="off"
           ></el-input>
         </el-form-item>
-        <el-form-item
-          label="发布状态"
-          :label-width="formLabelWidth"
-          prop="isPublish"
-        >
-          <el-radio-group v-model="form.status" size="small">
-            <el-radio label="1" border>上架</el-radio>
-            <el-radio label="0" border>下架</el-radio>
-          </el-radio-group>
+        <el-form-item label="状态" :label-width="formLabelWidth" prop="status">
+          <el-select v-model="form.status" placeholder="请选择">
+            <el-option
+              v-for="item in dict"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value"
+            ></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -184,22 +193,23 @@ export default {
       page: 1, // 默认页码
       limit: 5, // 每页记录数
       searchObj: {}, // 查询条件
-      options: [
-        {
-          value: '1',
-          label: '正常'
-        },
-        {
-          value: '0',
-          label: '下架'
-        }
-      ], //标签状态字典
+      dict: [], //数据字典
       formLabelWidth: '120px',
       dialogVisible: false, //新增字典弹窗
       dialogFormVisible: false, //导入字典弹窗
       BASE_API: process.env.VUE_APP_BASE_API, //获取后端接口地址
-
-      form: {} //新增
+      form: {}, //新增
+      rules: {
+        name: [
+          { required: true, message: '字典名不能为空', trigger: 'blur' },
+          { min: 1, max: 20, message: '长度在1到20个字符' }
+        ],
+        dictCode: [
+          { required: true, message: '字典编码不能为空', trigger: 'blur' },
+          { min: 1, max: 50, message: '长度在1到50个字符' }
+        ],
+        status: [{ required: true, message: '状态不能为空', trigger: 'blur' }]
+      }
     }
   },
   // 页面渲染成功后获取数据
@@ -208,20 +218,33 @@ export default {
   },
   // 定义方法
   methods: {
+    //清空redis缓存
+    deleteCache() {
+      dictApi.removeDictRedis().then(response => {
+        this.$message.success(response.message)
+        this.fetchData()
+      })
+    },
+    //Excel数据导出
+    exportData() {
+      window.location.href = this.BASE_API + '/admin/core/dict/export'
+    },
+    handleList: function(uid) {
+      this.$router.push({
+        path: 'dictData',
+        query: { dictTypeUid: uid }
+      })
+    },
     //关闭dialog时清空数据
     closeDialog() {
       this.form = {}
+      this.$refs.form.clearValidate() //移除该表单项的校验结果
     },
     //点击修改通过ID获取字典model
     approvalShow(row) {
       this.dialogVisible = true
       dictApi.getById(row).then(response => {
         this.form = response.data.model
-        if (this.form.status) {
-          this.form.status = '1'
-        } else {
-          this.form.status = '0'
-        }
       })
     },
     // 重置表单
@@ -230,24 +253,34 @@ export default {
       this.fetchData()
     },
     approvalSubmit() {
-      if (this.form.id != null) {
-        dictApi.updateById(this.form).then(response => {
-          this.dialogVisible = false
-          this.$message.success(response.message)
-          this.fetchData()
-        })
-      } else {
-        dictApi.saveTop(this.form).then(response => {
-          this.dialogVisible = false
-          this.$message.success(response.message)
-          this.fetchData()
-        })
-      }
+      this.$refs.form.validate(valid => {
+        if (!valid) {
+          console.log('校验出错')
+        } else {
+          if (this.form.id != null) {
+            dictApi.updateById(this.form).then(response => {
+              this.dialogVisible = false
+              this.$message.success(response.message)
+              this.fetchData()
+            })
+          } else {
+            dictApi.saveTop(this.form).then(response => {
+              this.dialogVisible = false
+              this.$message.success(response.message)
+              this.fetchData()
+            })
+          }
+        }
+      })
     },
     fetchData() {
       dictApi.listPage(this.page, this.limit, this.searchObj).then(response => {
         this.list = response.data.listPage.records
         this.total = response.data.listPage.total
+      })
+      //字典数据
+      dictApi.dict().then(response => {
+        this.dict = response.data.dict
       })
     },
     // 上传多于一个文件时

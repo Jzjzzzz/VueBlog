@@ -1,5 +1,11 @@
 import request from '@/utils/request'
 export default {
+  dict() {
+    return request({
+      url: '/admin/core/genre/dictList',
+      method: 'get'
+    })
+  },
   list(page, limit, searchObj) {
     return request({
       url: `/admin/core/genre/list/${page}/${limit}`,

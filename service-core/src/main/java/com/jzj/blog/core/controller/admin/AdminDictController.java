@@ -8,6 +8,7 @@ import com.jzj.blog.core.pojo.dto.ExcelDictDTO;
 import com.jzj.blog.core.pojo.entity.Dict;
 import com.jzj.blog.core.pojo.query.DictQuery;
 import com.jzj.blog.core.service.DictService;
+import com.jzj.blog.core.util.SystemDictUtil;
 import com.jzj.common.exception.BusinessException;
 import com.jzj.common.result.R;
 import com.jzj.common.result.ResponseEnum;
@@ -41,6 +42,25 @@ public class AdminDictController {
     @Resource
     private DictService dictService;
 
+    @Resource
+    private SystemDictUtil systemDictUtil;
+
+
+    @ApiOperation("清空字典缓存")
+    @DeleteMapping("/removeDictRedis")
+    public R removeDictRedis(){
+        boolean result = systemDictUtil.removeKey();
+        if(result){
+            return R.ok().message("清空成功");
+        }
+        return R.error().message("清空失败");
+    }
+    @ApiOperation("/字典数据")
+    @GetMapping("/dictList")
+    public R dict(){
+        List<Dict> dictListByParentId = systemDictUtil.getDictListByParentId();
+        return R.ok().data("dict",dictListByParentId);
+    }
 
     @ApiOperation("Excel数据的批量导入")
     @PostMapping("/import")
@@ -73,10 +93,20 @@ public class AdminDictController {
     }
 
     @ApiOperation("根据上级id获取子节点数据列表")
-    @GetMapping("/listByParentId/{parentId}")
-    public R listByParentId(@PathVariable Long parentId){
-        List<Dict> dictList = dictService.listByParentId(parentId);
-        return R.ok().data("list",dictList);
+    @GetMapping("/listByParentId/{page}/{limit}/{parentId}")
+    public R listByParentId(@PathVariable Long page,@PathVariable Long limit,@PathVariable Long parentId,DictQuery dictQuery){
+        Page<Dict> pageParam = new Page<>(page, limit);
+        IPage<Dict> listPage = dictService.listByParentId(pageParam,dictQuery,parentId);
+        return R.ok().data("listPage",listPage);
+    }
+    @ApiOperation("新增子节点")
+    @PostMapping("/saveSun/{parentId}")
+    public R saveSun(@PathVariable Long parentId, @RequestBody Dict dict){
+           boolean result = dictService.saveSun(parentId,dict);
+           if(result){
+               return R.ok().message("新增成功");
+           }
+           return R.error().message("新增失败");
     }
 
     @ApiOperation("新增顶级节点")

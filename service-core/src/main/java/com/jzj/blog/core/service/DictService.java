@@ -20,7 +20,7 @@ import java.util.List;
 public interface DictService extends IService<Dict> {
     void importData(InputStream inputStream);
 
-    List<Dict> listByParentId(Long parentId);
+    IPage<Dict> listByParentId(Page<Dict> pageParam,DictQuery dictQuery, Long parentId);
 
     List listDictData();
 
@@ -29,4 +29,6 @@ public interface DictService extends IService<Dict> {
     boolean removeByIdTop(Long id);
 
     boolean saveTop(Dict dict);
+
+    boolean saveSun(Long parentId, Dict dict);
 }

@@ -7,9 +7,19 @@
       </el-form-item>
 
       <el-form-item label="标签状态">
-        <el-select v-model="searchObj.status" placeholder="请选择" clearable>
-          <el-option label="正常" value="1" />
-          <el-option label="下架" value="0" />
+        <el-select
+          @change="fetchData()"
+          @clear="resetData()"
+          v-model="searchObj.status"
+          placeholder="请选择"
+          clearable
+        >
+          <el-option
+            v-for="item in dict"
+            :key="item.value"
+            :label="item.name"
+            :value="item.value"
+          ></el-option>
         </el-select>
       </el-form-item>
 
@@ -135,16 +145,12 @@
         <el-form-item label="排序" :label-width="formLabelWidth" prop="sort">
           <el-input v-model="form.sort" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item
-          label="标签状态"
-          :label-width="formLabelWidth"
-          prop="status"
-        >
-          <el-select v-model="form.status" placeholder="请选择" clearable>
+        <el-form-item label="状态" :label-width="formLabelWidth" prop="status">
+          <el-select v-model="form.status" placeholder="请选择">
             <el-option
-              v-for="item in options"
+              v-for="item in dict"
               :key="item.value"
-              :label="item.label"
+              :label="item.name"
               :value="item.value"
             ></el-option>
           </el-select>
@@ -173,19 +179,21 @@ export default {
       page: 1, // 默认页码
       limit: 5, // 每页记录数
       searchObj: {}, // 查询条件
-      options: [
-        {
-          value: '1',
-          label: '正常'
-        },
-        {
-          value: '0',
-          label: '下架'
-        }
-      ], //标签状态字典
+      dict: [], //字典数据
       formLabelWidth: '120px',
       dialogVisible: false,
-      form: {} //新增
+      form: {}, //新增
+      rules: {
+        content: [
+          { required: true, message: '博客标签名不能为空', trigger: 'blur' },
+          { min: 1, max: 20, message: '长度在1到20个字符' }
+        ],
+        status: [{ required: true, message: '状态不能为空', trigger: 'blur' }],
+        sort: [
+          { required: true, message: '排序字段不能为空', trigger: 'blur' },
+          { pattern: /^[0-9]\d*$/, message: '排序字段只能为自然数' }
+        ]
+      }
     }
   },
   // 页面渲染成功后获取数据
@@ -197,33 +205,35 @@ export default {
     //关闭dialog时清空数据
     closeDialog() {
       this.form = {}
+      this.$refs.form.clearValidate() //移除该表单项的校验结果
     },
     approvalShow(row) {
       this.dialogVisible = true
       tagApi.getById(row).then(response => {
         this.form = response.data.model
-        if (this.form.status) {
-          this.form.status = '正常'
-        } else {
-          this.form.status = '下架'
-        }
       })
     },
 
     approvalSubmit() {
-      if (this.form.id != null) {
-        tagApi.updateById(this.form).then(response => {
-          this.dialogVisible = false
-          this.$message.success(response.message)
-          this.fetchData()
-        })
-      } else {
-        tagApi.approval(this.form).then(response => {
-          this.dialogVisible = false
-          this.$message.success(response.message)
-          this.fetchData()
-        })
-      }
+      this.$refs.form.validate(valid => {
+        if (!valid) {
+          console.log('校验出错')
+        } else {
+          if (this.form.id != null) {
+            tagApi.updateById(this.form).then(response => {
+              this.dialogVisible = false
+              this.$message.success(response.message)
+              this.fetchData()
+            })
+          } else {
+            tagApi.approval(this.form).then(response => {
+              this.dialogVisible = false
+              this.$message.success(response.message)
+              this.fetchData()
+            })
+          }
+        }
+      })
     },
     changePageSize(size) {
       this.limit = size
@@ -238,6 +248,10 @@ export default {
       tagApi.list(this.page, this.limit, this.searchObj).then(response => {
         this.list = response.data.listPage.records
         this.total = response.data.listPage.total
+      })
+      //字典数据
+      tagApi.dict().then(response => {
+        this.dict = response.data.dict
       })
     },
     //根据id置顶数据

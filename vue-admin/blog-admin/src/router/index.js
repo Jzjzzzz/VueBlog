@@ -105,6 +105,13 @@ export const constantRoutes = [
         name: '数据字典',
         component: () => import('@/views/core/system/dict'),
         meta: { title: '数据字典' }
+      },
+      {
+        path: 'system/dictData',
+        name: '字典数据',
+        hidden: true, // 隐藏
+        component: () => import('@/views/core/system/dictData'),
+        meta: { title: '字典数据' }
       }
     ]
   },

@@ -10,7 +10,7 @@
         <el-form ref="form" :model="form" label-width="80px">
           <el-form-item label="LOGO">
             <el-upload
-              action="http://localhost:/api/oss/file/upload"
+              :action="handleBeforeUploadImg()"
               :on-success="onUploadSuccessLOGO"
               :on-remove="onUploadRemove"
               :multiple="false"
@@ -185,6 +185,7 @@ export default {
       hideUpload: false,
       limitCount: 1,
       uploadUrl: '/api/oss/file/upload', //图片上传地址
+      BASE_API: process.env.VUE_APP_BASE_API, //获取后端接口地址
       fileList: []
     }
   },
@@ -195,6 +196,9 @@ export default {
 
   // 定义方法
   methods: {
+    handleBeforeUploadImg: function() {
+      return this.BASE_API + this.uploadUrl
+    },
     handleEditChange(file, fileList) {
       console.log(file)
       this.hideUpload = fileList.length >= this.limitCount

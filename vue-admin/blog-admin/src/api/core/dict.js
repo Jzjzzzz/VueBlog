@@ -1,10 +1,11 @@
 //引入axios的初始化模块
 import request from '@/utils/request'
 export default {
-  listByParentId(parentId) {
+  listByParentId(page, limit, searchObj, parentId) {
     return request({
-      url: `/admin/core/dict/listByParentId/${parentId}`,
-      method: 'get'
+      url: `/admin/core/dict/listByParentId/${page}/${limit}/${parentId}`,
+      method: 'get',
+      params: searchObj
     })
   },
   listPage(page, limit, searchObj) {
@@ -38,6 +39,25 @@ export default {
       url: '/admin/core/dict/update',
       method: 'put',
       data: dict
+    })
+  },
+  saveSun(dict, parentId) {
+    return request({
+      url: `/admin/core/dict/saveSun/${parentId}`,
+      method: 'post',
+      data: dict
+    })
+  },
+  dict() {
+    return request({
+      url: '/admin/core/dict/dictList',
+      method: 'get'
+    })
+  },
+  removeDictRedis() {
+    return request({
+      url: '/admin/core/dict/removeDictRedis',
+      method: 'delete'
     })
   }
 }

@@ -15,17 +15,13 @@ import com.jzj.blog.core.service.DictService;
 import com.jzj.common.exception.Assert;
 import com.jzj.common.result.ResponseEnum;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -39,9 +35,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements DictService {
 
-    @Resource
-    private RedisTemplate redisTemplate;
-
 
     @Transactional(rollbackFor = {Exception.class})
     @Override
@@ -54,10 +47,10 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     public List<ExcelDictDTO> listDictData() {
         List<Dict> dictList = baseMapper.selectList(null);
         //创建ExcelDictDTO列表，将Dict列表转换成ExcelDictDTO列表
-        ArrayList<ExcelDictDTO> excelDictDTOList=new ArrayList<>(dictList.size());
+        ArrayList<ExcelDictDTO> excelDictDTOList = new ArrayList<>(dictList.size());
         dictList.forEach(dict -> {
-            ExcelDictDTO excelDictDTO=new ExcelDictDTO();
-            BeanUtils.copyProperties(dict,excelDictDTO);
+            ExcelDictDTO excelDictDTO = new ExcelDictDTO();
+            BeanUtils.copyProperties(dict, excelDictDTO);
             excelDictDTOList.add(excelDictDTO);
         });
         return excelDictDTOList;
@@ -65,18 +58,20 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
 
     @Override
     public IPage<Dict> listPage(Page<Dict> pageParam, DictQuery dictQuery) {
+        Page<Dict> dictPage = null;
         QueryWrapper<Dict> dictQueryWrapper = new QueryWrapper<>();
-        dictQueryWrapper.eq("parent_id",1);
-        if(dictQuery==null){
-            return baseMapper.selectPage(pageParam,dictQueryWrapper);
+        dictQueryWrapper.eq("parent_id", 1);
+        if (dictQuery == null) {
+            dictPage = baseMapper.selectPage(pageParam, dictQueryWrapper);
+            return dictPage;
         }
         String name = dictQuery.getName(); //查询条件：字典名称
         String dict_code = dictQuery.getDict_code();//查询条件：字典编码
 
-        dictQueryWrapper.like(StringUtils.isNotBlank(name),"name",name)
-                .like(StringUtils.isNotBlank(dict_code),"dict_code",dict_code);
-
-        return baseMapper.selectPage(pageParam,dictQueryWrapper);
+        dictQueryWrapper.like(StringUtils.isNotBlank(name), "name", name)
+                .like(StringUtils.isNotBlank(dict_code), "dict_code", dict_code);
+        dictPage = baseMapper.selectPage(pageParam, dictQueryWrapper);
+        return dictPage;
     }
 
     @Override
@@ -85,7 +80,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         boolean hasChildren = this.hasChildren(id);
         Assert.isTrue(!hasChildren, ResponseEnum.Dic_Top_NotNull);
         int result = baseMapper.deleteById(id);
-        if(result>=1){
+        if (result >= 1) {
             return true;
         }
         return false;
@@ -95,65 +90,70 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     public boolean saveTop(Dict dict) {
         QueryWrapper<Dict> dictQueryWrapper = new QueryWrapper<>();
         //查询出当前最大的id
-        dictQueryWrapper.eq("parent_id",1)
+        dictQueryWrapper.eq("parent_id", 1)
                 .orderByDesc("id")
                 .last("limit 1");
         Dict dictMax = baseMapper.selectOne(dictQueryWrapper);
-        //向上给Id增加1000
+        //当为空时设置初始值100否则向上添加100
+        if (dictMax == null) {
+            dict.setId(100L);
+        }else {
+            dict.setId(dictMax.getId() + 100L);
+        }
 
-        dict.setId(dictMax.getId()+1000L);
-        log.info("id:"+dict.getId());
         dict.setParentId(1L);
         int result = baseMapper.insert(dict);
-        if(result>=1){
+        if (result >= 1) {
             return true;
         }
         return false;
     }
 
     @Override
-    public List<Dict> listByParentId(Long parentId) {
-        //首先查询redis中是否存在数据列表
-        try {
-            List<Dict> dictList =(List<Dict>) redisTemplate.opsForValue().get("blog:core:dictList:" + parentId);
-            if(dictList!=null){
-                log.info("从redis中获取数据列表");
-                return dictList;
-            }
-        } catch (Exception e) {
-            log.error("redis服务器异常:"+ ExceptionUtils.getStackTrace(e));
-        }
-        log.info("从数据库中获取数据列表");
+    public boolean saveSun(Long parentId, Dict dict) {
+        //查询当前顶级节点下最后一个节点
         QueryWrapper<Dict> dictQueryWrapper = new QueryWrapper<>();
-        dictQueryWrapper.eq("parent_id",parentId);
-        List<Dict> dictList = baseMapper.selectList(dictQueryWrapper);
-        //填充hasChildren字段
-        dictList.forEach(dict -> {
-            //判断当前节点是否有子节点，找到当前的dict下级有没有子节点
-            boolean hasChildren = this.hasChildren(dict.getId());
-            dict.setHasChildren(hasChildren);
-        });
-        //将数据存入redis
-        try {
-            redisTemplate.opsForValue().set("blog:core:dictList:" + parentId,dictList,60, TimeUnit.MINUTES);
-            log.info("将数据存入redis");
-        } catch (Exception e) {
-            log.error("redis服务器异常:"+ ExceptionUtils.getStackTrace(e));
+        dictQueryWrapper.eq("parent_id", parentId)
+                .orderByDesc("id")
+                .last("limit 1");
+        Dict dictMax = baseMapper.selectOne(dictQueryWrapper);
+        if (dictMax == null) {
+            dict.setId(parentId + 1);
+        } else {
+            dict.setId(dictMax.getId() + 1);
         }
-        return dictList;
+        dict.setParentId(parentId);
+        int count = baseMapper.insert(dict);
+        if (count >= 1) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public IPage<Dict> listByParentId(Page<Dict> pageParam, DictQuery dictQuery, Long parentId) {
+        QueryWrapper<Dict> dictQueryWrapper = new QueryWrapper<>();
+        dictQueryWrapper.eq("parent_id", parentId);
+        if (dictQuery == null) {
+            return baseMapper.selectPage(pageParam, dictQueryWrapper);
+        }
+        String name = dictQuery.getName();
+        dictQueryWrapper.like(StringUtils.isNotBlank(name), "name", name);
+        return baseMapper.selectPage(pageParam, dictQueryWrapper);
     }
 
     /**
      * 判断当前id所在的节点下是否有子节点
+     *
      * @param parentId
      * @return
      */
-    private boolean hasChildren(Long parentId){
+    private boolean hasChildren(Long parentId) {
         QueryWrapper<Dict> dictQueryWrapper = new QueryWrapper<>();
-        dictQueryWrapper.eq("parent_id",parentId);
+        dictQueryWrapper.eq("parent_id", parentId);
         Integer count = baseMapper.selectCount(dictQueryWrapper);
-        if(count.intValue()>0){
-            return  true;
+        if (count.intValue() > 0) {
+            return true;
         }
         return false;
     }

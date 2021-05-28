@@ -38,6 +38,7 @@ public class Dict implements Serializable {
     @ApiModelProperty(value = "值")
     private Integer value;
 
+
     @ApiModelProperty(value = "编码")
     private String dictCode;
 
