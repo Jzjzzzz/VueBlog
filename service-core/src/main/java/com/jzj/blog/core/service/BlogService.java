@@ -2,6 +2,7 @@ package com.jzj.blog.core.service;
 
 import com.jzj.blog.core.pojo.entity.Blog;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.jzj.blog.core.pojo.vo.CategoryLabelsVo;
 
 /**
  * <p>
@@ -13,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface BlogService extends IService<Blog> {
 
+    CategoryLabelsVo getCategoryLabels();
 }

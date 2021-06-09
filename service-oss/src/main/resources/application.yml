@@ -7,7 +7,7 @@ spring:
     name: service-oss # 服务名
 aliyun:
   oss:
-    endpoint: 你自己的
-    keyId: 你自己的
-    keySecret: 你自己的
-    bucketName: 你自己的
+    endpoint: oss-cn-guangzhou.aliyuncs.com
+    keyId: LTAI5tRYMRSF5FTUEn7HZHDR
+    keySecret: CGboVCVQrXvUIh1Hhlx50zonZRQpv8
+    bucketName: jzj-blog

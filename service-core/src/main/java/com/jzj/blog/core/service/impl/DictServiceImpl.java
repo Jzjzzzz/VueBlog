@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jzj.blog.base.global.SQLConf;
 import com.jzj.blog.core.listener.ExcelDictDTOListener;
 import com.jzj.blog.core.mapper.DictMapper;
 import com.jzj.blog.core.pojo.dto.ExcelDictDTO;
@@ -91,7 +92,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         QueryWrapper<Dict> dictQueryWrapper = new QueryWrapper<>();
         //查询出当前最大的id
         dictQueryWrapper.eq("parent_id", 1)
-                .orderByDesc("id")
+                .orderByDesc(SQLConf.ID)
                 .last("limit 1");
         Dict dictMax = baseMapper.selectOne(dictQueryWrapper);
         //当为空时设置初始值100否则向上添加100
@@ -114,7 +115,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         //查询当前顶级节点下最后一个节点
         QueryWrapper<Dict> dictQueryWrapper = new QueryWrapper<>();
         dictQueryWrapper.eq("parent_id", parentId)
-                .orderByDesc("id")
+                .orderByDesc(SQLConf.ID)
                 .last("limit 1");
         Dict dictMax = baseMapper.selectOne(dictQueryWrapper);
         if (dictMax == null) {
