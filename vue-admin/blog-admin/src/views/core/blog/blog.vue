@@ -1,16 +1,127 @@
 <template>
   <div class="app-container">
     <!--查询表单-->
+    <el-form :inline="true" class="demo-form-inline">
+      <el-form-item label="博客标题">
+        <el-input v-model="searchObj.content" placeholder="分类名" />
+      </el-form-item>
 
-    <el-button
-      class="grid-content bg-purple"
-      type="primary"
-      icon="el-icon-edit"
-      size="medium"
-      @click="dialogFormVisible = true"
+      <el-form-item label="分类">
+        <el-select
+          @change="fetchData()"
+          @clear="resetData()"
+          v-model="searchObj.status"
+          placeholder="请选择"
+          clearable
+        >
+          <el-option
+            v-for="item in dict"
+            :key="item.value"
+            :label="item.name"
+            :value="item.value"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="标签">
+        <el-select
+          @change="fetchData()"
+          @clear="resetData()"
+          v-model="searchObj.status"
+          placeholder="请选择"
+          clearable
+        >
+          <el-option
+            v-for="item in dict"
+            :key="item.value"
+            :label="item.name"
+            :value="item.value"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-button type="primary" icon="el-icon-search" @click="fetchData()">
+        查询
+      </el-button>
+      <el-button
+        class="grid-content bg-purple"
+        type="primary"
+        icon="el-icon-edit"
+        size="medium"
+        @click="dialogFormVisible = true"
+      >
+        新增
+      </el-button>
+
+      <el-button type="default" @click="resetData()">清空</el-button>
+    </el-form>
+
+    <!-- 表格 -->
+    <el-table
+      :data="list"
+      border
+      stripe
+      @selection-change="handleSelectionChange"
     >
-      新增
-    </el-button>
+      <el-table-column type="selection"></el-table-column>
+      <el-table-column type="index" width="50" align="center" />
+      <el-table-column prop="title" label="博客标题" align="center" />
+      <el-table-column prop="fileId" label="博客图片" align="center" />
+      <el-table-column prop="blogSortId" label="博客分类" align="center" />
+      <el-table-column prop="tagId" label="博客标签" align="center" />
+      <el-table-column prop="clickCount" label="博客点击数" align="center" />
+      <el-table-column prop="createTime" label="创建时间" align="center" />
+      <el-table-column prop="updateTime" label="修改时间" align="center" />
+      <el-table-column prop="status" width="100" label="状态" align="center">
+        <template slot-scope="scope">
+          <template v-if="scope.row.status == 1">
+            <span>正常</span>
+          </template>
+          <template v-if="scope.row.status == 0">
+            <span>下架</span>
+          </template>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="300" align="center">
+        <template slot-scope="scope">
+          <el-button
+            type="warning"
+            size="mini"
+            icon="el-icon-edit"
+            @click="stickyBlogById(scope.row.id)"
+          >
+            置顶
+          </el-button>
+          <el-button
+            type="primary"
+            size="mini"
+            icon="el-icon-edit"
+            @click="approvalShow(scope.row.id)"
+          >
+            修改
+          </el-button>
+          <el-button
+            type="danger"
+            size="mini"
+            icon="el-icon-delete"
+            @click="removeById(scope.row.id)"
+          >
+            删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!-- 分页组件 -->
+    <el-pagination
+      :current-page="page"
+      :total="total"
+      :page-size="limit"
+      :page-sizes="[5, 10]"
+      style="padding: 30px 0; "
+      layout="total, sizes, prev, pager, next, jumper"
+      @size-change="changePageSize"
+      @current-change="changeCurrentPage"
+    />
+
     <!-- 图片缩略图弹出框 -->
     <el-dialog :visible.sync="dialogVisible">
       <img width="100%" :src="dialogImageUrl" alt="" />
@@ -253,7 +364,8 @@ export default {
       BASE_API: process.env.VUE_APP_BASE_API, //获取后端接口地址
       fileList: 0,
       limitCount: 1,
-      hideUpload: false
+      hideUpload: false,
+      searchObj: {} //查询集合
     }
   },
 

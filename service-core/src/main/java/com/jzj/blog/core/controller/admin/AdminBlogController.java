@@ -37,6 +37,14 @@ public class AdminBlogController {
     @Resource
     private SystemDictUtil systemDictUtil;
 
+
+    @ApiOperation("博客列表")
+    @GetMapping("/blogList")
+    public R blogList(@PathVariable Long page,@PathVariable Long limit){
+
+        return R.ok().message("成功");
+    }
+
     @ApiOperation("获取分类，标签数据")
     @GetMapping("/getCategoryLabels")
     public R getCategoryLabels(){
