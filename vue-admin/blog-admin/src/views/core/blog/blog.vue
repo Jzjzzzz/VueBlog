@@ -3,38 +3,30 @@
     <!--查询表单-->
     <el-form :inline="true" class="demo-form-inline">
       <el-form-item label="博客标题">
-        <el-input v-model="searchObj.content" placeholder="分类名" />
+        <el-input v-model="searchObj.title" placeholder="博客标题" />
       </el-form-item>
 
-      <el-form-item label="分类">
+      <el-form-item label="分类" prop="blogSortName">
         <el-select
-          @change="fetchData()"
-          @clear="resetData()"
-          v-model="searchObj.status"
+          v-model="searchObj.blogSortName"
           placeholder="请选择"
           clearable
         >
           <el-option
-            v-for="item in dict"
-            :key="item.value"
-            :label="item.name"
-            :value="item.value"
+            v-for="item in genreList"
+            :key="item.id"
+            :label="item.content"
+            :value="item.content"
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="标签">
-        <el-select
-          @change="fetchData()"
-          @clear="resetData()"
-          v-model="searchObj.status"
-          placeholder="请选择"
-          clearable
-        >
+      <el-form-item label="标签" prop="tagId">
+        <el-select v-model="searchObj.tagId" placeholder="请选择" clearable>
           <el-option
-            v-for="item in dict"
-            :key="item.value"
-            :label="item.name"
-            :value="item.value"
+            v-for="item in tagList"
+            :key="item.id"
+            :label="item.content"
+            :value="item.id"
           ></el-option>
         </el-select>
       </el-form-item>
@@ -56,18 +48,29 @@
     </el-form>
 
     <!-- 表格 -->
-    <el-table
-      :data="list"
-      border
-      stripe
-      @selection-change="handleSelectionChange"
-    >
-      <el-table-column type="selection"></el-table-column>
+    <el-table :data="list" border stripe>
       <el-table-column type="index" width="50" align="center" />
       <el-table-column prop="title" label="博客标题" align="center" />
-      <el-table-column prop="fileId" label="博客图片" align="center" />
-      <el-table-column prop="blogSortId" label="博客分类" align="center" />
-      <el-table-column prop="tagId" label="博客标签" align="center" />
+      <el-table-column prop="fileId" label="博客图片" align="center">
+        <template slot-scope="scope">
+          <el-image
+            style="width: 100px; height: 100px"
+            :src="scope.row.fileId"
+            :preview-src-list="srcList"
+            @click="srclistBig(scope.row.fileId)"
+          ></el-image>
+        </template>
+      </el-table-column>
+      <el-table-column prop="blogSortName" label="博客分类" align="center">
+        <template slot-scope="scope">
+          <el-tag type="success">{{ scope.row.blogSortName }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="tagName" label="博客标签" align="center">
+        <template slot-scope="scope">
+          <el-tag effect="plain">{{ scope.row.tagName }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="clickCount" label="博客点击数" align="center" />
       <el-table-column prop="createTime" label="创建时间" align="center" />
       <el-table-column prop="updateTime" label="修改时间" align="center" />
@@ -83,14 +86,6 @@
       </el-table-column>
       <el-table-column label="操作" width="300" align="center">
         <template slot-scope="scope">
-          <el-button
-            type="warning"
-            size="mini"
-            icon="el-icon-edit"
-            @click="stickyBlogById(scope.row.id)"
-          >
-            置顶
-          </el-button>
           <el-button
             type="primary"
             size="mini"
@@ -163,8 +158,8 @@
                 :multiple="false"
                 :data="{ module: 'blogTitleImg' }"
                 :limit="1"
+                :file-list="fileListurl"
                 list-type="picture-card"
-                :file-list="fileList"
               >
                 <i class="el-icon-plus"></i>
               </el-upload>
@@ -180,15 +175,16 @@
               prop="blogSortId"
             >
               <el-select
-                v-model="form.blogSortId"
+                v-model="form.blogSortName"
                 size="small"
                 placeholder="请选择"
+                @change="blogSortValue"
               >
                 <el-option
                   v-for="item in genreList"
                   :key="item.id"
                   :label="item.content"
-                  :value="item.id"
+                  :value="item"
                 ></el-option>
               </el-select>
             </el-form-item>
@@ -213,17 +209,13 @@
             </el-form-item>
           </el-col>
           <el-col :span="4">
-            <el-form-item
-              label="推荐等级"
-              :label-width="maxLineLabelWidth"
-              prop="level"
-            >
+            <el-form-item label="推荐等级" prop="level">
               <el-select v-model="form.level" size="small" placeholder="请选择">
                 <el-option
                   v-for="item in starsDict"
                   :key="item.id"
                   :label="item.name"
-                  :value="item.id"
+                  :value="item.value"
                 ></el-option>
               </el-select>
             </el-form-item>
@@ -267,11 +259,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="5">
-            <el-form-item
-              label="是否发布"
-              :label-width="lineLabelWidth"
-              prop="status"
-            >
+            <el-form-item label="是否发布" prop="status">
               <el-radio-group v-model="form.status" size="small">
                 <el-radio
                   v-for="item in dataList"
@@ -328,6 +316,11 @@ export default {
   // 定义数据模型
   data() {
     return {
+      srcList: [],
+      list: [],
+      total: 0, // 数据库中的总记录数
+      page: 1, // 默认页码
+      limit: 5, // 每页记录数
       dialogImageUrl: '',
       dialogVisible: false, //图片缩略图弹出框状态
       dialogFormVisible: false, //新增博客弹出框状态
@@ -353,7 +346,6 @@ export default {
         ],
         content: [{ required: true, message: '内容不能为空', trigger: 'blur' }]
       },
-      tagValue: [], //保存选中标签id(编辑时)
       tagList: {}, //标签列表
       genreList: {}, //分类列表
       starsDict: {}, //推荐等级字典数据
@@ -363,6 +355,7 @@ export default {
       uploadUrl: '/api/oss/file/upload', //图片上传地址
       BASE_API: process.env.VUE_APP_BASE_API, //获取后端接口地址
       fileList: 0,
+      fileListurl: [],
       limitCount: 1,
       hideUpload: false,
       searchObj: {} //查询集合
@@ -375,6 +368,57 @@ export default {
   },
   // 定义方法
   methods: {
+    approvalShow(row) {
+      this.dialogFormVisible = true
+      blogApi.getById(row).then(response => {
+        this.form = response.data.blog
+        //表单数据类型转换
+        var tag = new Array()
+        tag = this.form.tagId.split(',')
+        tag = tag.map(function(data) {
+          return +data
+        })
+        this.form.tagId = tag
+        this.form.original = this.form.original == true ? 1 : 2
+        this.form.openComment = this.form.openComment == true ? 1 : 2
+
+        this.fileListurl.push({
+          name: 'blogTitleImg',
+          url: this.form.fileId
+        })
+        this.fileList = 1
+      })
+    },
+    // 根据id删除数据
+    removeById(id) {
+      this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          blogApi.removeById(id).then(response => {
+            this.$message.success(response.message)
+            this.fetchData()
+          })
+        })
+        .catch(error => {
+          this.$message.info('取消删除')
+        })
+    },
+    // 重置表单
+    resetData() {
+      this.searchObj = {}
+      this.fetchData()
+    },
+    srclistBig(url) {
+      this.srcList.push(url)
+    },
+    //选中分类下拉后给表单赋值
+    blogSortValue(item) {
+      this.form.blogSortId = item.id
+      this.form.blogSortName = item.content
+    },
     //关闭dialog时清空数据
     closeDialog() {
       location.reload()
@@ -385,12 +429,21 @@ export default {
         if (!valid) {
           console.log('校验出错')
         } else {
-          this.form.tagId = this.form.tagId.toString()
-          blogApi.save(this.form).then(response => {
-            this.dialogFormVisible = false
-            this.$message.success(response.message)
-            this.fetchData()
-          })
+          if (this.form.id != null) {
+            this.form.tagId = this.form.tagId.toString()
+            blogApi.updateById(this.form).then(response => {
+              this.dialogFormVisible = false
+              this.$message.success(response.message)
+              this.fetchData()
+            })
+          } else {
+            this.form.tagId = this.form.tagId.toString()
+            blogApi.save(this.form).then(response => {
+              this.dialogFormVisible = false
+              this.$message.success(response.message)
+              this.fetchData()
+            })
+          }
         }
       })
     },
@@ -427,7 +480,19 @@ export default {
     handleBeforeUploadImg: function() {
       return this.BASE_API + this.uploadUrl
     },
+    changePageSize(size) {
+      this.limit = size
+      this.fetchData()
+    },
+    changeCurrentPage(page) {
+      this.page = page
+      this.fetchData()
+    },
     fetchData() {
+      blogApi.list(this.page, this.limit, this.searchObj).then(response => {
+        this.list = response.data.listPage.records
+        this.total = response.data.listPage.total
+      })
       //获取标签和分类的数据
       blogApi.getCategoryLabels().then(response => {
         this.tagList = response.data.categoryLabelsVo.tagList
@@ -444,7 +509,6 @@ export default {
   }
 }
 </script>
-<style scoped></style>
 <style>
 .hide .el-upload--picture-card {
   display: none;

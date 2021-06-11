@@ -95,7 +95,6 @@
           label-position="left"
           :model="form"
           label-width="80px"
-          :rules="rules"
           ref="form"
         >
           <el-checkbox-group v-model="form.showList">

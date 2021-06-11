@@ -43,12 +43,7 @@
     </el-form>
 
     <!-- 表格 -->
-    <el-table
-      :data="list"
-      border
-      stripe
-      @selection-change="handleSelectionChange"
-    >
+    <el-table :data="list" border stripe>
       <el-table-column type="index" width="50" align="center" />
       <el-table-column prop="dictCode" label="字典编码" align="center" />
       <el-table-column prop="name" label="字典名称" align="center" />

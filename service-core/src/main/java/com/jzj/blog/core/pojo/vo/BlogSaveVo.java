@@ -9,6 +9,9 @@ import lombok.Data;
 @ApiModel("新建博客数据")
 public class BlogSaveVo {
 
+    @ApiModelProperty(value = "id")
+    private Long id;
+
     @ApiModelProperty(value = "博客标题")
     private String title;
 
@@ -18,11 +21,14 @@ public class BlogSaveVo {
     @ApiModelProperty(value = "博客分类id")
     private Long blogSortId;
 
+    @ApiModelProperty(value = "博客分类名称")
+    private String blogSortName;
+
     @ApiModelProperty(value = "标签id")
     private String tagId;
 
     @ApiModelProperty(value = "推荐等级(0:正常)")
-    private Boolean level;
+    private Integer level;
 
     @ApiModelProperty(value = "标题图片id")
     private String fileId;

@@ -59,6 +59,9 @@ public class Blog implements Serializable {
     @ApiModelProperty(value = "标签id")
     private String tagId;
 
+    @ApiModelProperty(value = "标签名")
+    private String tagName;
+
     @ApiModelProperty(value = "博客点击数")
     private Integer clickCount;
 
@@ -81,8 +84,11 @@ public class Blog implements Serializable {
     @ApiModelProperty(value = "博客分类id")
     private Long blogSortId;
 
+    @ApiModelProperty(value = "博客分类名")
+    private String blogSortName;
+
     @ApiModelProperty(value = "推荐等级(0:正常)")
-    private Boolean level;
+    private Integer level;
 
     @ApiModelProperty(value = "是否发布：0：否，1：是")
     @TableField("is_publish")

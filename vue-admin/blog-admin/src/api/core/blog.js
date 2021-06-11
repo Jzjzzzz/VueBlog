@@ -19,5 +19,31 @@ export default {
       method: 'post',
       data: blog
     })
+  },
+  list(page, limit, searchObj) {
+    return request({
+      url: `/admin/core/blog/blogList/${page}/${limit}`,
+      method: 'get',
+      params: searchObj
+    })
+  },
+  removeById(id) {
+    return request({
+      url: `/admin/core/blog/remove/${id}`,
+      method: 'delete'
+    })
+  },
+  getById(id) {
+    return request({
+      url: `/admin/core/blog/getById/${id}`,
+      method: 'get'
+    })
+  },
+  updateById(blog) {
+    return request({
+      url: '/admin/core/blog/update',
+      method: 'put',
+      data: blog
+    })
   }
 }
