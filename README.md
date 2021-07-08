@@ -37,6 +37,7 @@
 3.  启动redis
 4.  启动微服务网关：service-gateway
 5.  启动核心业务微服务: service-core
+6.  第一次git下来需要修改日志成你本机的
 
 #### 项目预览图
 ![标签页](https://images.gitee.com/uploads/images/2021/0518/210324_905f69d0_4874620.png "X8`$(PP3}QLVO~%@S53D26N.png")
